@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+//OTHER CONTROLLERS FOR PROBLEMS 2, 3, AND 4 ARE IN SEPARATE SWIFT FILES IN THEIR OWN SUBCLASS
 class MainController: UIViewController {
 
     override func viewDidLoad() {
