@@ -44,7 +44,7 @@ enum CellState : String {
     }
 }
 
-typealias Position = (row:Int, col:Int)
+//typealias Position = (row:Int, col:Int)
 
 let offsets:[Position] = [
     (-1,-1), (-1, 0), (-1, 1),
