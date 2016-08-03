@@ -10,7 +10,6 @@ import UIKit
 
 class ConfigurationEditorViewController: UIViewController, EngineDelegate {
     
-    
     @IBOutlet weak var gridView: GridView!
     @IBOutlet weak var gridName: UITextField!
     
@@ -22,8 +21,6 @@ class ConfigurationEditorViewController: UIViewController, EngineDelegate {
         super.viewDidLoad()
         gridName.text = gridtitle?.title
     }
-    
-
     
     @IBAction func save(sender: AnyObject) {
         guard let newText = gridName.text, commit = commit

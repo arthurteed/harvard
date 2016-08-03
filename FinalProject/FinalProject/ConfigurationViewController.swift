@@ -1,10 +1,4 @@
-//
 //  ConfigurationViewController.swift
-//  ProjectPrototype
-//
-//  Created by Van Simmons on 7/23/16.
-//  Copyright © 2016 S65g. All rights reserved.
-//
 
 import UIKit
 
@@ -55,6 +49,7 @@ class ConfigurationViewController: UITableViewController, EngineDelegate {
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
+        tableView.reloadData()
         engine.preconfigIndex = nil
         engine.delegate = self
     }
@@ -67,8 +62,7 @@ class ConfigurationViewController: UITableViewController, EngineDelegate {
             engine.preconfigs = newValue
         }
     }
-    
-    
+
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return preconfigs.count
     }

@@ -56,11 +56,18 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </view>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dlT-Mw-I9n">
+                                        <rect key="frame" x="134" y="479" width="34" height="30"/>
+                                        <state key="normal" title="Save"/>
+                                        <connections>
+                                            <action selector="saveSimulationGrid:" destination="8rJ-Kc-sve" eventType="touchUpInside" id="NmH-fH-Pfo"/>
+                                        </connections>
+                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rhW-Vj-9AU">
                                         <rect key="frame" x="263" y="479" width="34" height="30"/>
                                         <state key="normal" title="Start"/>
                                         <connections>
-                                            <action selector="pressed:" destination="8rJ-Kc-sve" eventType="touchUpInside" id="jHF-Yq-9hk"/>
+                                            <action selector="start:" destination="8rJ-Kc-sve" eventType="touchUpInside" id="hqG-0r-Miw"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VSJ-Hn-HNp">
@@ -70,13 +77,17 @@
                                             <action selector="refreshGrid:" destination="8rJ-Kc-sve" eventType="touchUpInside" id="bV3-E5-XJ9"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dlT-Mw-I9n">
-                                        <rect key="frame" x="134" y="479" width="34" height="30"/>
-                                        <state key="normal" title="Save"/>
-                                        <connections>
-                                            <action selector="saveSimulationGrid:" destination="8rJ-Kc-sve" eventType="touchUpInside" id="NmH-fH-Pfo"/>
-                                        </connections>
-                                    </button>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="54X-wD-FSE">
+                                        <rect key="frame" x="222" y="-3" width="116" height="76"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="116" id="Bzs-KW-mk8"/>
+                                            <constraint firstAttribute="height" constant="76" id="K0M-kH-9kG"/>
+                                        </constraints>
+                                        <string key="text">Turn Timer On, Choose Refresh Rate, Draw Grid Pattern, Press Start :) If Grid Stops Working, Turn Timer On and Off, Draw a New Pattern!</string>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="9"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                    </textView>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
@@ -91,7 +102,9 @@
                                     <constraint firstItem="4Bj-RX-Vou" firstAttribute="height" secondItem="n6y-74-cnZ" secondAttribute="height" multiplier="0.8" priority="750" id="fMZ-hS-BCA"/>
                                     <constraint firstItem="dlT-Mw-I9n" firstAttribute="top" secondItem="4Bj-RX-Vou" secondAttribute="bottom" constant="8" symbolic="YES" id="gIs-xg-fwN"/>
                                     <constraint firstItem="VSJ-Hn-HNp" firstAttribute="top" secondItem="4Bj-RX-Vou" secondAttribute="bottom" constant="8" id="hVU-xt-V8G"/>
+                                    <constraint firstItem="54X-wD-FSE" firstAttribute="centerX" secondItem="n6y-74-cnZ" secondAttribute="centerX" id="l4N-iU-ses"/>
                                     <constraint firstItem="4Bj-RX-Vou" firstAttribute="centerX" secondItem="n6y-74-cnZ" secondAttribute="centerX" id="ugi-NK-uvF"/>
+                                    <constraint firstItem="54X-wD-FSE" firstAttribute="top" secondItem="n6y-74-cnZ" secondAttribute="top" constant="-3" id="vZz-6K-JS4"/>
                                     <constraint firstItem="4Bj-RX-Vou" firstAttribute="width" secondItem="n6y-74-cnZ" secondAttribute="width" multiplier="0.8" priority="750" id="yGD-85-7c9"/>
                                 </constraints>
                             </view>
@@ -269,33 +282,51 @@
                                     <segue destination="CuF-7H-5Cq" kind="embed" id="DNH-TQ-9wI"/>
                                 </connections>
                             </containerView>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="quR-fI-Rsy">
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="3" translatesAutoresizingMaskIntoConstraints="NO" id="quR-fI-Rsy">
                                 <rect key="frame" x="49" y="452" width="101" height="31"/>
+                                <color key="minimumTrackTintColor" red="0.49644693550000002" green="1" blue="0.38642444939999998" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="maximumTrackTintColor" red="0.89771933605661447" green="1" blue="0.031224419746356702" alpha="1" colorSpace="calibratedRGB"/>
+                                <connections>
+                                    <action selector="refreshRateSlider:" destination="xrk-m4-FgQ" eventType="valueChanged" id="7Sg-GO-twZ"/>
+                                </connections>
                             </slider>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Timed Refresh" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EsY-kz-pxT">
-                                <rect key="frame" x="227" y="414" width="112" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <rect key="frame" x="227" y="415.5" width="110.5" height="19.5"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Interval" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="34T-3O-Khl">
-                                <rect key="frame" x="255" y="456" width="57" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <rect key="frame" x="254" y="457" width="57" height="19.5"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="10" minimumValue="10" maximumValue="100" stepValue="10" translatesAutoresizingMaskIntoConstraints="NO" id="rLt-8H-NNw">
-                                <rect key="frame" x="236" y="329" width="94" height="29"/>
+                                <rect key="frame" x="235" y="329" width="94" height="29"/>
+                                <color key="tintColor" red="0.49644693550000002" green="1" blue="0.38642444939999998" alpha="1" colorSpace="calibratedRGB"/>
                                 <connections>
                                     <action selector="incrementRows:" destination="xrk-m4-FgQ" eventType="valueChanged" id="fj0-Gr-GrS"/>
                                 </connections>
                             </stepper>
                             <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="10" minimumValue="10" maximumValue="100" stepValue="10" translatesAutoresizingMaskIntoConstraints="NO" id="OCv-Yf-DBa">
-                                <rect key="frame" x="236" y="367" width="94" height="29"/>
+                                <rect key="frame" x="235" y="367" width="94" height="29"/>
+                                <color key="tintColor" red="0.49644693550000002" green="1" blue="0.38642444939999998" alpha="1" colorSpace="calibratedRGB"/>
                                 <connections>
                                     <action selector="incrementCols:" destination="xrk-m4-FgQ" eventType="valueChanged" id="pUI-fp-TaJ"/>
                                 </connections>
                             </stepper>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hbT-IU-gaf">
+                                <rect key="frame" x="78" y="490" width="42" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="UqS-cM-PhL"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="42" id="hcB-CP-FFi"/>
+                                    <constraint firstAttribute="width" constant="42" id="sEJ-VV-B7o"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Rows" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Syj-8w-Noy">
                                 <rect key="frame" x="51" y="328" width="97" height="30"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -306,8 +337,9 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H3j-0e-h2J">
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="H3j-0e-h2J">
                                 <rect key="frame" x="75" y="404" width="51" height="31"/>
+                                <color key="onTintColor" red="0.49644693550000002" green="1" blue="0.38642444939999998" alpha="1" colorSpace="calibratedRGB"/>
                                 <connections>
                                     <action selector="timedRefreshToggle:" destination="xrk-m4-FgQ" eventType="valueChanged" id="fkf-b9-5l6"/>
                                 </connections>
@@ -317,7 +349,10 @@
                         <constraints>
                             <constraint firstItem="quR-fI-Rsy" firstAttribute="centerY" secondItem="34T-3O-Khl" secondAttribute="centerY" id="0fQ-Me-Vw5"/>
                             <constraint firstItem="jhh-4r-Cr0" firstAttribute="leading" secondItem="quR-fI-Rsy" secondAttribute="leading" id="1o8-Na-cA9"/>
+                            <constraint firstItem="Mii-Hi-fHh" firstAttribute="top" secondItem="hbT-IU-gaf" secondAttribute="bottom" constant="40" id="657-t5-98y"/>
                             <constraint firstItem="H3j-0e-h2J" firstAttribute="top" secondItem="jhh-4r-Cr0" secondAttribute="bottom" constant="8" symbolic="YES" id="BMD-nW-gNy"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="hbT-IU-gaf" secondAttribute="trailing" constant="460" id="FQE-ns-zVp"/>
+                            <constraint firstItem="hbT-IU-gaf" firstAttribute="top" secondItem="quR-fI-Rsy" secondAttribute="bottom" constant="8" id="K3g-J1-fwd"/>
                             <constraint firstItem="Syj-8w-Noy" firstAttribute="top" secondItem="5ha-7r-YZT" secondAttribute="bottom" constant="8" symbolic="YES" id="Kpd-Jq-Axh"/>
                             <constraint firstItem="quR-fI-Rsy" firstAttribute="top" secondItem="H3j-0e-h2J" secondAttribute="bottom" constant="17" id="NkB-1w-2Dv"/>
                             <constraint firstItem="H3j-0e-h2J" firstAttribute="bottom" secondItem="EsY-kz-pxT" secondAttribute="bottom" id="P0H-yC-ER6"/>
@@ -336,6 +371,7 @@
                             <constraint firstItem="5ha-7r-YZT" firstAttribute="height" secondItem="iSh-FR-kEh" secondAttribute="height" multiplier="0.5" id="mq0-Ia-o7v"/>
                             <constraint firstItem="jhh-4r-Cr0" firstAttribute="centerX" secondItem="H3j-0e-h2J" secondAttribute="centerX" id="nRE-Tc-dlT"/>
                             <constraint firstItem="Syj-8w-Noy" firstAttribute="leading" secondItem="jhh-4r-Cr0" secondAttribute="leading" id="pOa-qq-1l0"/>
+                            <constraint firstItem="hbT-IU-gaf" firstAttribute="leading" secondItem="iSh-FR-kEh" secondAttribute="leadingMargin" constant="58" id="qH3-Bw-b4b"/>
                             <constraint firstItem="OCv-Yf-DBa" firstAttribute="bottom" secondItem="jhh-4r-Cr0" secondAttribute="bottom" id="uvw-xc-HQ8"/>
                             <constraint firstItem="EsY-kz-pxT" firstAttribute="centerX" secondItem="34T-3O-Khl" secondAttribute="centerX" id="zfC-2x-ehx"/>
                         </constraints>
@@ -348,11 +384,21 @@
                         <outlet property="interval" destination="quR-fI-Rsy" id="Agw-Kf-Vr9"/>
                         <outlet property="rowStepperOutlet" destination="rLt-8H-NNw" id="eMs-zJ-MbJ"/>
                         <outlet property="rows" destination="Syj-8w-Noy" id="lHF-bb-EoA"/>
+                        <outlet property="sliderValue" destination="hbT-IU-gaf" id="wWw-oB-sBW"/>
                         <outlet property="toggleSwitch" destination="H3j-0e-h2J" id="TfB-Uk-yvf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uEm-V0-cAv" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <navigationItem id="iYY-x8-Fk1"/>
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="center" selectable="NO" id="LUu-eA-gHM">
+                    <rect key="frame" x="0.0" y="0.0" width="217" height="97"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <string key="text">How to Play: Open Instrumentation. Turn on Timed Refresh. Change the Interval. Press on the grid to turn some cells Alive. Press Start. Watch :)</string>
+                    <color key="textColor" red="1" green="0.57566818180000001" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                </textView>
             </objects>
             <point key="canvasLocation" x="1481" y="-657"/>
         </scene>

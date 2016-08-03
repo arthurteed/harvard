@@ -11,10 +11,38 @@ import UIKit
 class SimulationViewController: UIViewController, EngineDelegate {
     
     let engine = StandardEngine.sharedInstance
+    var switchOn: [String:AnyObject] = [ "switchOn": "false"]
+
     
-    //WHEN YOU PRESS SAVE BUTTON (NOT YET FUNCTIONING)
+    //WHEN YOU PRESS SAVE BUTTON A NOTIFICATION WILL POP UP W/ NEW, SAVE, AND CANCEL
     @IBAction func saveSimulationGrid(sender: AnyObject) {
-        print("save")
+        let alert = UIAlertController(title: "New Name",
+                                      message: "Add a new name",
+                                      preferredStyle: .Alert)
+        
+        let saveAction = UIAlertAction(title: "Save",
+                                       style: .Default,
+                                       handler: { (action:UIAlertAction) -> Void in
+                                        
+                                        let textField = alert.textFields!.first
+                                        self.engine.preconfigs.append(GridData(title: textField!.text!, contents: self.gridView.points ))
+                                        
+        })
+        
+        let cancelAction = UIAlertAction(title: "Cancel",
+                                         style: .Default) { (action: UIAlertAction) -> Void in
+        }
+        
+        alert.addTextFieldWithConfigurationHandler {
+            (textField: UITextField) -> Void in
+        }
+        
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        
+        presentViewController(alert,
+                              animated: true,
+                              completion: nil)
     }
     
     override func viewDidLoad() {
@@ -39,13 +67,12 @@ class SimulationViewController: UIViewController, EngineDelegate {
     
     func engineDidUpdate(withGrid: GridProtocol) {
         gridView.setNeedsDisplay()
-        StandardEngine.sharedInstance.startTimerWithInterval(10)
+        StandardEngine.sharedInstance.startTimerWithInterval(StandardEngine.sharedInstance.refreshRate * 20)
     }
     
-    func refreshGridWithTimer(notification: NSNotification) {
-        if let mySwitchBool = notification.userInfo as? [String:AnyObject] {
-            print(mySwitchBool)
-            
+    func refreshGridWithTimer(notification: NSNotification)  {
+        switchOn = (notification.userInfo as? [String:AnyObject])!
+        if (switchOn["switchOn"]! as! String == "true") {
             engine.grid = StandardEngine.sharedInstance.step()
             gridView.setNeedsDisplay()
         }
@@ -61,8 +88,13 @@ class SimulationViewController: UIViewController, EngineDelegate {
         engine.grid = StandardEngine.sharedInstance.step()
         gridView.setNeedsDisplay()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(SimulationViewController.NextTimerNoticationFunction(_:)), name:"NextTimerNotification", object: nil)
-        
+        if (switchOn["switchOn"]! as! String == "true") {
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(NextTimerNoticationFunction(_:)), name:"NextTimerNotification", object: nil)
+        }
+        else {
+            StandardEngine.sharedInstance.startTimerWithInterval(0)
+            StandardEngine.sharedInstance.refreshRate = 0
+        }
     }
 
     func NextTimerNoticationFunction(notification: NSNotification){

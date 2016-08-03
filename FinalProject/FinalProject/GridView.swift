@@ -1,6 +1,5 @@
 //
 //  GridView.swift
-//  Assignment3
 //
 //  Created by Arthur (Live) on 07.07.16.
 //  Copyright © 2016 Harvard. All rights reserved.
@@ -11,36 +10,38 @@ import UIKit
 @IBDesignable class GridView: UIView {
         
         let engine = StandardEngine.sharedInstance
-        var rows: Int {
-            get {
-                if let preconfig = engine.preconfig {
-                    let intarray: Array<Int> = preconfig.contents.map({
-                        return $0.row
-                    })
-                    return intarray.maxElement()! + 1
-                }
-                return engine.rows
+    var rows: Int {
+        get {
+            if let configuration = engine.preconfig {
+                let intarray: Array<Int> = configuration.contents.map({
+                    return $0.row
+                })
+                let value = (intarray.maxElement() ?? 20 ) + 1
+                return value >= 20 ? value : 20
             }
-            set {
-                engine.rows = newValue
-            }
+            return engine.rows
         }
-        var cols: Int {
-            get {
-                if let preconfig = engine.preconfig {
-                    let intarray: Array<Int> = preconfig.contents.map({
-                        return $0.col
-                    })
-                    return intarray.maxElement()! + 1
-                }
-                
-                return engine.cols
-            }
-            set {
-                engine.cols = newValue
-            }
+        set {
+            engine.rows = newValue
         }
-        
+    }
+    var cols: Int {
+        get {
+            if let configuration = engine.preconfig {
+                let intarray: Array<Int> = configuration.contents.map({
+                    return $0.col
+                })
+                let value = (intarray.maxElement() ?? 20 ) + 1
+                return value >= 20 ? value : 20
+            }
+            
+            return engine.cols
+        }
+        set {
+            engine.cols = newValue
+        }
+    }
+    
         var grid: GridProtocol {
             get {
                 if let preconfig = engine.preconfig {
@@ -55,7 +56,6 @@ import UIKit
                     }
                     
                 }
-                
                 return engine.grid
             }
             set {
@@ -73,8 +73,7 @@ import UIKit
             }
         }
     
-     //ADDED POINTS PROPERTY
-    
+    //ADDED POINTS PROPERTY
     var points: [Position] {
         get {
             return grid.cells.reduce([]) { (array, cell) -> [Position] in
@@ -230,9 +229,20 @@ import UIKit
             }
             return [living, empty, born, died]
         }
-    
-    
-//LAST BRACKET
+    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        
+        if let touch = touches.first {
+            let position :CGPoint = touch.locationInView(self)
+            let xreal = position.x - rowStart
+            let yreal = position.y - colStart
+            let rown =  Int (xreal / colWidth)
+            let coln =  Int(yreal / rowWidth)
+            if (rown >= 0 && rown < rows && coln >= 0 && coln < cols ) {
+                grid[coln,rown] = .Alive
+                setNeedsDisplay()
+            }
+        }
+    }
     
 }
 
