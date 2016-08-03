@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		993956CB1D4FD8C20049BCED /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993956CA1D4FD8C20049BCED /* AppDelegate.swift */; };
-		993956CD1D4FD8C20049BCED /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993956CC1D4FD8C20049BCED /* FirstViewController.swift */; };
+		993956CD1D4FD8C20049BCED /* InstrumentationViewController1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993956CC1D4FD8C20049BCED /* InstrumentationViewController1.swift */; };
 		993956CF1D4FD8C20049BCED /* SimulationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993956CE1D4FD8C20049BCED /* SimulationViewController.swift */; };
 		993956D41D4FD8C20049BCED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 993956D31D4FD8C20049BCED /* Assets.xcassets */; };
 		993956D71D4FD8C20049BCED /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 993956D51D4FD8C20049BCED /* LaunchScreen.storyboard */; };
@@ -24,7 +24,7 @@
 /* Begin PBXFileReference section */
 		993956C71D4FD8C20049BCED /* FinalProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FinalProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		993956CA1D4FD8C20049BCED /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = FinalProject/AppDelegate.swift; sourceTree = "<group>"; };
-		993956CC1D4FD8C20049BCED /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
+		993956CC1D4FD8C20049BCED /* InstrumentationViewController1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstrumentationViewController1.swift; sourceTree = "<group>"; };
 		993956CE1D4FD8C20049BCED /* SimulationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulationViewController.swift; sourceTree = "<group>"; };
 		993956D31D4FD8C20049BCED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		993956D61D4FD8C20049BCED /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -92,7 +92,7 @@
 			children = (
 				9983D68E1D5130E80085E10D /* ConfigurationViewController.swift */,
 				9983D68D1D5130E80085E10D /* ConfigurationEditorViewController.swift */,
-				993956CC1D4FD8C20049BCED /* FirstViewController.swift */,
+				993956CC1D4FD8C20049BCED /* InstrumentationViewController1.swift */,
 				993956CE1D4FD8C20049BCED /* SimulationViewController.swift */,
 				993956DE1D4FDA7E0049BCED /* StatisticsViewController.swift */,
 			);
@@ -183,7 +183,7 @@
 				993956CF1D4FD8C20049BCED /* SimulationViewController.swift in Sources */,
 				9983D6901D5130E80085E10D /* ConfigurationViewController.swift in Sources */,
 				993956CB1D4FD8C20049BCED /* AppDelegate.swift in Sources */,
-				993956CD1D4FD8C20049BCED /* FirstViewController.swift in Sources */,
+				993956CD1D4FD8C20049BCED /* InstrumentationViewController1.swift in Sources */,
 				9983D68F1D5130E80085E10D /* ConfigurationEditorViewController.swift in Sources */,
 				993956E11D4FDB8C0049BCED /* GridView.swift in Sources */,
 				993956DF1D4FDA7E0049BCED /* StatisticsViewController.swift in Sources */,
