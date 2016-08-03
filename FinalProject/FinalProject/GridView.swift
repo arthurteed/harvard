@@ -9,639 +9,231 @@
 import UIKit
 
 @IBDesignable class GridView: UIView {
-    
-    @IBInspectable var rows: Int   = 20
-    @IBInspectable var cols: Int   = 20
-  /*  @IBInspectable var points: [(Int, Int)]{
-        get{
-            return [Int]
+        
+        let engine = StandardEngine.sharedInstance
+        var rows: Int {
+            get {
+                if let preconfig = engine.preconfig {
+                    let intarray: Array<Int> = preconfig.contents.map({
+                        return $0.row
+                    })
+                    return intarray.maxElement()! + 1
+                }
+                return engine.rows
+            }
+            set {
+                engine.rows = newValue
+            }
         }
-    }*/
-    
-    @IBInspectable var livingColor:   UIColor = UIColor.blueColor()
-    @IBInspectable var emptyColor:    UIColor = UIColor.grayColor()
-    @IBInspectable var bornColor:     UIColor = UIColor.yellowColor()
-    @IBInspectable var diedColor:     UIColor = UIColor.purpleColor()
-    @IBInspectable var gridColor:     UIColor = UIColor.blackColor()
-    @IBInspectable var gridWidth:     CGFloat = 0.0
-    var grid = [[CellState]](count: 20, repeatedValue: [CellState](count: 20, repeatedValue: .Empty))
-    
-    
-    
-    
-    override func drawRect(rect: CGRect) {
-    
-            
-        let viewWidth: CGFloat = self.bounds.width
-        let viewHeight: CGFloat = self.bounds.height
-        var m = 0
+        var cols: Int {
+            get {
+                if let preconfig = engine.preconfig {
+                    let intarray: Array<Int> = preconfig.contents.map({
+                        return $0.col
+                    })
+                    return intarray.maxElement()! + 1
+                }
+                
+                return engine.cols
+            }
+            set {
+                engine.cols = newValue
+            }
+        }
         
-        for _ in 0...cols {
-            
-            let verticalStroke = UIBezierPath()
-            verticalStroke.lineWidth = gridWidth
-        
-            verticalStroke.moveToPoint(CGPoint(
-            x:m,
-            y:0))
-        
-            verticalStroke.addLineToPoint(CGPoint(
-            x:m,
-            y: Int(viewHeight)))
-        
-            gridColor.setStroke()
-        
-            verticalStroke.stroke()
-            m+=15
+        var grid: GridProtocol {
+            get {
+                if let preconfig = engine.preconfig {
+                    return Grid(rows,cols) { position in
+                        if preconfig.contents.contains({
+                            return $0.row == position.row && $0.col == position.col
+                        }) {
+                            return .Alive
+                        } else {
+                            return .Empty
+                        }
                     }
-            m = 0
-        
-        for _ in 0...rows {
+                    
+                }
+                
+                return engine.grid
+            }
+            set {
+                if let _ = engine.preconfig {
+                    var array: Array<Position> = []
+                    for row in 0..<rows {
+                        for col in 0..<cols {
+                            if grid[row,col] == .Alive {
+                                array.append(Position(row,col))
+                            }
+                        }
+                    }
+                }
+                engine.grid = newValue
+            }
+        }
+    
+     //ADDED POINTS PROPERTY
+    
+    var points: [Position] {
+        get {
+            return grid.cells.reduce([]) { (array, cell) -> [Position] in
+                if cell.state == .Alive {
+                    return array + [cell.position]
+                }
+                return array
+            }
+        }
+        set {
+            let newGrid = Grid(rows, cols) { position in
+                return newValue.contains({ return position.row == $0.row && position.col == $0.col }) ? .Alive : .Empty
+            }
+            grid = newGrid
+            if let delegate = StandardEngine.sharedInstance.delegate {
+                delegate.engineDidUpdate(grid)
+            }
+        }
+    }
+
+    //DRAWING THE GRID
+
+    @IBInspectable var livingColor:   UIColor = UIColor.whiteColor()
+    @IBInspectable var emptyColor:    UIColor = UIColor.whiteColor()
+    @IBInspectable var bornColor:     UIColor = UIColor.whiteColor()
+    @IBInspectable var diedColor:     UIColor = UIColor.whiteColor()
+    @IBInspectable var gridColor:     UIColor = UIColor.blackColor()
+    @IBInspectable var gridWidth:     CGFloat = 1.0
+    @IBInspectable var fillColor = UIColor.clearColor()
+    @IBInspectable var xProportion = CGFloat(0.8)
+    @IBInspectable var widthProportion = CGFloat(0.002)
+    
+    var addCol: CGFloat = 0.0
+    var addRow: CGFloat = 0.0
+    var rowStart: CGFloat = 0.0
+    var rowEnd: CGFloat = 0.0
+    var colStart: CGFloat = 0.0
+    var colEnd: CGFloat = 0.0
+    var colWidth: CGFloat = 0.0
+    var rowWidth: CGFloat = 0.0
+    
+    func state(value:CellState) -> UIColor {
+        switch value {
+        case .Empty: return emptyColor
+        case .Died: return diedColor
+        case .Born: return bornColor
+        case .Alive: return livingColor
+        }
+    }
+
+    override func drawRect(rect: CGRect) {
+        super.drawRect(rect)
+            
+            let path = UIBezierPath(rect: rect)
+            fillColor.setFill()
+            path.fill()
+            
+            let lineWidth: CGFloat = sqrt(bounds.width*bounds.height) * widthProportion
+            addCol = bounds.height * xProportion
+            addRow = bounds.width * xProportion
+            let plusPath = UIBezierPath()
+            
+            plusPath.lineWidth = lineWidth
+            
+            let x0: CGFloat = (bounds.width - addRow)/2
+            let y0: CGFloat = (bounds.height - addCol)/2
+            rowStart = 0 + x0
+            rowEnd = bounds.width - x0
+            colStart = 0 + y0
+            colEnd = bounds.height - y0
             
             
-            let horizontalStroke = UIBezierPath()
-            horizontalStroke.lineWidth = gridWidth
+            colWidth = addRow/CGFloat(cols)
+            rowWidth = addCol/CGFloat(rows)
             
-            horizontalStroke.moveToPoint(CGPoint(
-                x:0,
-                y:m))
+            var x1: CGFloat  = 0
+            var x2: CGFloat  = 0
+            var y1: CGFloat  = 0
+            var y2: CGFloat  = 0
+            for i in 0...cols {
+                x1 = colWidth * CGFloat(i) + rowStart
+                y1 = colStart
+                x2 = x1
+                y2 = colEnd
+                
+                plusPath.moveToPoint(CGPoint(
+                    x:x1,
+                    y:y1))
+                
+                plusPath.addLineToPoint(CGPoint(
+                    x:x2,
+                    y:y2))
+            }
             
-            horizontalStroke.addLineToPoint(CGPoint(
-                x:Int(viewWidth),
-                y:m ))
+            var x11: CGFloat  = 0
+            var x22: CGFloat  = 0
+            var y11: CGFloat  = 0
+            var y22: CGFloat  = 0
+            for i in 0...rows {
+                x11 = rowStart
+                y11 = rowWidth * CGFloat(i) + colStart
+                x22 = rowEnd
+                y22 = y11
+                
+                plusPath.moveToPoint(CGPoint(
+                    x:x11,
+                    y:y11))
+                
+                plusPath.addLineToPoint(CGPoint(
+                    x:x22,
+                    y:y22))
+            }
             
             gridColor.setStroke()
-            horizontalStroke.stroke()
-            m+=15
-        }
-        
-        var xPos:CGFloat = 7.5
-        
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 7.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            xPos+=15
-            if grid[0][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[0][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[0][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[0][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
             
+            plusPath.stroke()
             
-        }
-        xPos = 7.5
+            var x: CGFloat  = 0
+            var y: CGFloat  = 0
+            for i in 0...rows-1 {
+                y = (CGFloat(i) * rowWidth) + colStart
+                for j in 0...cols-1 {
+                    x = (CGFloat(j) * colWidth) + rowStart
+                    let ovalPath = UIBezierPath(ovalInRect: CGRectMake(x, y, colWidth, rowWidth))
+                    state(grid[i,j]).setFill()
+                    ovalPath.fill()
+                }
+            }
         
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 22.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            xPos+=15
-            if grid[1][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[1][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[1][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[1][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
         }
-        xPos = 7.5
-        
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 37.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[2][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[2][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[2][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[2][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 52.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[3][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[3][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[3][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[3][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 67.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[4][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[4][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[4][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[4][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        
-        xPos = 7.5
-        
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 82.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[5][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[5][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[5][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[5][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 97.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[6][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[6][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[6][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[6][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 112.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[7][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[7][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[7][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[7][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 127.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[8][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[8][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[8][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[8][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 142.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[9][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[9][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[9][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[9][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 157.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[10][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[10][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[10][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[10][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 172.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[11][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[11][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[11][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[11][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 187.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[12][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[12][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[12][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[12][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 202.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[13][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[13][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[13][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[13][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 217.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[14][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[14][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[14][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[14][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 232.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[15][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[15][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[15][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[15][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 247.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[16][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[16][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[16][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[16][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 262.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[17][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[17][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[17][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[17][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 277.5
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[18][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[18][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[18][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[18][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        xPos = 7.5
-        for x in 0..<rows {
-            var center = CGPoint()
-            center.x = xPos
-            center.y = 292.5
-            
-            let radius = (CGFloat(5))
-            let path:UIBezierPath = UIBezierPath()
-            path.addArcWithCenter(center, radius: radius, startAngle: 0.0, endAngle: CGFloat(M_PI) * 2.0, clockwise: true)
-            emptyColor.setFill()
-            path.fill()
-            xPos+=15
-            if grid[19][x] == CellState.Empty {
-                emptyColor.setFill()
-                path.fill()
-            }
-            if grid[19][x] == CellState.Born {
-                bornColor.setFill()
-                path.fill()
-            }
-            if grid[19][x] == CellState.Living {
-                livingColor.setFill()
-                path.fill()
-            }
-            if grid[19][x] == CellState.Died {
-                diedColor.setFill()
-                path.fill()
-            }
-        }
-        
 
+        func statistics() -> Array<Int> {
+            var living = 0
+            var empty = 0
+            var born = 0
+            var died = 0
+            for i in 0...rows-1 {
+                for j in 0...cols-1 {
+                    
+                    if grid[i,j] == .Alive  {
+                        living = living + 1
+                    }
+                    if grid[i,j] == .Empty  {
+                        empty = empty + 1
+                    }
+                    if grid[i,j] == .Born  {
+                        born = born + 1
+                    }
+                    if grid[i,j] == .Died  {
+                        died = died + 1
+                    }
+                }
+            }
+            return [living, empty, born, died]
         }
+    
+    
+//LAST BRACKET
     
 }
+
 

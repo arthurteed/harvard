@@ -4,7 +4,9 @@
 //
 //  Created by Arthur (Live) on 01.08.16.
 //  Copyright © 2016 Harvard. All rights reserved.
-//
+
+// APPICON SELF MADE IN PHOTOSHOP
+// TAB BARS ARE FROM ICONS8.COM
 
 import UIKit
 
